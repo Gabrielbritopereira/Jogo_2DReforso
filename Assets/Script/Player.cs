@@ -3,8 +3,13 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public float speed = 5f;
-
     private Rigidbody2D rb;
+    public float distanciaDash = 5f;       // Distância total do dash
+    public float duracaoDash = 0.2f;       // Tempo que o dash leva para completar
+    public float tempoRecarga = 1f;        // Tempo de espera para usar de novo
+
+    private bool estaEmDash = false;
+    private bool podeFazerDash = true;
 
     void Start()
     {
@@ -20,7 +25,63 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.AddForce(new Vector2(0f, 5f), ForceMode2D.Impulse);// 
+            rb.AddForce(new Vector2(0f, 5f), ForceMode2D.Impulse);// Vai aplicar o pulo
+        }
+
+        if (Inpurt.GetkeyDown(keyCode.Leftshift)) 
+        {
+
+            {
+                // Se já estiver em dash, ignora os inputs de movimento normais
+                if (estaEmDash) return;
+
+                // Detecta o clique/botão (Shift Esquerdo como exemplo)
+                if (Input.GetKeyDown(KeyCode.LeftShift) && podeFazerDash)
+                {
+                    // Pega a direção do movimento atual baseada no input (ex: WASD)
+                    Vector3 direcao = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
+
+                    // Se o jogador estiver parado, faz o dash para a frente do personagem
+                    if (direcao == Vector3.zero)
+                    {
+                        direcao = transform.forward;
+                    }
+
+                    StartCoroutine(ExecutarDash(direcao));
+                }
+            }
+
+            IEnumerator ExecutarDash(Vector3 direcao)
+            {
+                estaEmDash = true;
+                podeFazerDash = false;
+
+                Vector3 posicaoInicial = transform.position;
+                Vector3 posicaoFinal = transform.position + direcao * distanciaDash;
+                float tempoPassado = 0f;
+
+                // Move o personagem suavemente frame a frame até o destino
+                while (tempoPassado < duracaoDash)
+                {
+                    tempoPassado += Time.deltaTime;
+                    float porcentagem = tempoPassado / duracaoDash;
+
+                    // Interpola a posição linearmente entre o início e o fim
+                    transform.position = Vector3.Lerp(posicaoInicial, posicaoFinal, porcentagem);
+
+                    yield return null; // Espera o próximo frame
+                }
+
+                // Garante que o jogador termine exatamente na posição final
+                transform.position = posicaoFinal;
+                estaEmDash = false;
+
+                // Espera o tempo de recarga (cooldown) antes de permitir outro dash
+                yield return new WaitForSeconds(tempoRecarga);
+                podeFazerDash = true;
+            }
         }
     }
-}
+    }
+
+
