@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Player : MonoBehaviour
 {
@@ -28,7 +29,7 @@ public class Player : MonoBehaviour
             rb.AddForce(new Vector2(0f, 5f), ForceMode2D.Impulse);// Vai aplicar o pulo
         }
 
-        if (Inpurt.GetkeyDown(keyCode.Leftshift)) 
+        if (Input.GetKeyDown (KeyCode.LeftShift))
         {
 
             {
