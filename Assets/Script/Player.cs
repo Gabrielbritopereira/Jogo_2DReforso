@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-
+using UnityEngine.SceneManagement;
 public class Player : MonoBehaviour
 {
     public float speed = 5f;
@@ -11,6 +11,8 @@ public class Player : MonoBehaviour
 
     private bool estaEmDash = false;
     private bool podeFazerDash = true;
+
+    private bool isGrounded = false;
 
     void Start()
     {
@@ -24,12 +26,13 @@ public class Player : MonoBehaviour
 
         rb.linearVelocity =new Vector2(moveHorizontal * speed, rb.linearVelocity.y); //Vai aplicar a velocida
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded )
         {
             rb.AddForce(new Vector2(0f, 5f), ForceMode2D.Impulse);// Vai aplicar o pulo
+            isGrounded = false;
         }
 
-        if (Input.GetKeyDown (KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.LeftShift))
         {
 
             {
@@ -82,7 +85,23 @@ public class Player : MonoBehaviour
                 podeFazerDash = true;
             }
         }
+
+
+     
+        
     }
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded =true;
+        }
+
+        if (collision.gameObject.CompareTag("Dano"))
+        {
+            SceneManager.LoadScene(0);
+        }
     }
+}
 
 
